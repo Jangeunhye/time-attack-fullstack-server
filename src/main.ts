@@ -1,17 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import * as cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './filters/httpException.filter';
-import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { HttpExceptionFilter } from './filters/handler.error';
+import enhancerMiddleware from './middlewares/enhancer.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  });
 
-  app.use(cors());
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.use(cookieParser());
+  app.use(enhancerMiddleware);
   app.useGlobalFilters(new HttpExceptionFilter());
-
   await app.listen(5050);
 }
 bootstrap();
