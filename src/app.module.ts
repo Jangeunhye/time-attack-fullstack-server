@@ -1,9 +1,11 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './db/prisma/prisma.module';
 import { DomainsModule } from './domains/domains.module';
+import { UserOnlyGuard } from './guard/userOnly.guard';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 
 @Module({
@@ -13,7 +15,7 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: UserOnlyGuard }],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
