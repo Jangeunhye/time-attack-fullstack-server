@@ -1,10 +1,11 @@
 import {
+  Body,
   Controller,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { DealsService } from './deals.service';
 
 @Controller('upload')
@@ -18,8 +19,16 @@ export class DealsController {
   // }
 
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
-  uploadMainImage(@UploadedFile() file: Express.Multer.File) {
-    return this.dealsService.addImageToDeal(file);
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'files', maxCount: 3 },
+      { name: 'post', maxCount: 1 },
+    ]),
+  )
+  uploadMainImage(
+    @Body() dto: any,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.dealsService.addImageToDeal(files);
   }
 }
