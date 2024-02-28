@@ -11,7 +11,6 @@ export class DealsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createDeal(user: User, data: WithOutImageDealDto, image: Image) {
-    console.log(image.buffer);
     const userId = user.id;
 
     const { title, content, location, price } = data;
@@ -32,7 +31,7 @@ export class DealsService {
         price,
         view: 0,
         userId,
-        imagUrl: path,
+        imageUrl: fileName,
       },
     });
 
@@ -40,7 +39,40 @@ export class DealsService {
   }
 
   async getDeals() {
-    const deals = await this.prismaService.post.findMany({});
+    const deals = await this.prismaService.post.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return deals;
+  }
+
+  async getDeal(id: number) {
+    const deal = await this.prismaService.post.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return deal;
+  }
+
+  async updateView(id: number) {
+    const deal = await this.prismaService.post.update({
+      where: {
+        id,
+      },
+      data: {
+        view: { increment: 1 },
+      },
+    });
+
+    return deal;
+  }
+
+  async getMyDeals(userId: string) {
+    const deals = await this.prismaService.post.findMany({
+      where: { userId },
+    });
+
     return deals;
   }
 }

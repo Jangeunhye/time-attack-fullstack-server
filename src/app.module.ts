@@ -16,7 +16,7 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
     DomainsModule,
     ConfigModule.forRoot({ isGlobal: true }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
+      rootPath: join(__dirname, '..', 'public'),
     }),
   ],
   controllers: [AppController],

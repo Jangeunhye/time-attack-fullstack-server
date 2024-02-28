@@ -1,9 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './filters/handler.error';
-import enhancerMiddleware from './middlewares/enhancer.middleware';
+import { HttpExceptionFilter } from './filters/httpException.filter';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -12,8 +11,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.use(cookieParser());
-  app.use(enhancerMiddleware);
+  app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
   await app.listen(5050);
 }

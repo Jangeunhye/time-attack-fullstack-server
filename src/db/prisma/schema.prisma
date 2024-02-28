@@ -32,7 +32,7 @@ model Post {
   view       Int
   price      Int
   location   String
-  imagUrl    String
+  imageUrl   String
   createdAt  DateTime    @default(now())
   updateAt   DateTime    @updatedAt
   likedPosts LikedPost[]

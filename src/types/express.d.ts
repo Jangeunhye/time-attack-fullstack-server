@@ -6,9 +6,5 @@ declare global {
       accessToken?: string;
       user: User;
     }
-
-    export interface Response {
-      sendJson: <T>(data?: T) => void;
-    }
   }
 }
