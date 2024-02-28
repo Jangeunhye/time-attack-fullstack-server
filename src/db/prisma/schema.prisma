@@ -24,27 +24,18 @@ model User {
 }
 
 model Post {
-  id       Int    @id @default(autoincrement())
-  user     User   @relation(fields: [userId], references: [id])
-  userId   String
-  title    String
-  content  String
-  view     Int
-  price    Int
-  location String
-
-  postImages PostImage[]
+  id         Int         @id @default(autoincrement())
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String
+  title      String
+  content    String
+  view       Int
+  price      Int
+  location   String
+  imagUrl    String
   createdAt  DateTime    @default(now())
   updateAt   DateTime    @updatedAt
   likedPosts LikedPost[]
-}
-
-model PostImage {
-  id        Int      @id @default(autoincrement())
-  post      Post     @relation(fields: [postId], references: [id])
-  postId    Int
-  createdAt DateTime @default(now())
-  imageUrl  String
 }
 
 model LikedPost {

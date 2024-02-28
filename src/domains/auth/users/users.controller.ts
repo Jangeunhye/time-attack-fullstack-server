@@ -14,7 +14,7 @@ export class UsersController {
       httpOnly: true,
       secure: true,
     });
-    return { accessToken };
+    response.sendJson(accessToken);
   }
 
   @Post('log-in')
@@ -27,6 +27,7 @@ export class UsersController {
       httpOnly: true,
       secure: true,
     });
+    response.sendJson(accessToken);
   }
 
   @Delete('log-out')

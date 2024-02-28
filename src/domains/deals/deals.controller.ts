@@ -21,14 +21,15 @@ export class DealsController {
 
   @Post('deals/create')
   @UserOnly()
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'files', maxCount: 3 }]))
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 3 }]))
   createDeal(
     @DUser() user: User,
     @Body() dto: WithOutImageDealDto,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles() image: Express.Multer.File,
   ) {
     const data = JSON.parse(dto['post']);
-    return this.dealsService.createDeal(user, data, files);
+    const parsedImage = image['image'][0];
+    return this.dealsService.createDeal(user, data, parsedImage);
   }
 
   @Get()
