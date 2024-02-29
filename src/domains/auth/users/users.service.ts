@@ -6,13 +6,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Prisma, User } from '@prisma/client';
 import { compare, hash } from 'bcrypt';
-import { sign, verify } from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 import { PrismaService } from 'src/db/prisma/prisma.service';
 import generateRandomId from 'src/utils/generateRandomId';
 import { isEmail } from 'validator';
 import { UserLogInDto, UserSignUpDto } from './users.dto';
-
-import { JWT_SECRET_KEY } from 'src/config';
 
 @Injectable()
 export class UsersService {
@@ -64,21 +62,24 @@ export class UsersService {
     return accessToken;
   }
 
-  async checkUserWithAccessToken(accessToken: string) {
-    const { sub: id } = verify(accessToken, JWT_SECRET_KEY);
-
-    const user = await this.prismaService.user.findUnique({
-      where: { id: String(id) },
+  async checkLoggedIn(user: User, dealId: number) {
+    const verifiedUser = await this.prismaService.deal.findUnique({
+      where: { userId: user.id, id: dealId },
     });
-    return user;
+    return verifiedUser;
   }
 
   generateAccessToken(user: Pick<User, 'id' | 'email'>) {
     const JWT_SECRET_KEY = this.configService.getOrThrow('JWT_SECRET_KEY');
     const accessToken = sign({ email: user.email }, JWT_SECRET_KEY, {
       subject: String(user.id),
-      expiresIn: '2h',
+      expiresIn: '30m',
     });
     return accessToken;
+  }
+
+  async refreshToken(user: User) {
+    const refreshedAccessToken = this.generateAccessToken(user);
+    return refreshedAccessToken;
   }
 }

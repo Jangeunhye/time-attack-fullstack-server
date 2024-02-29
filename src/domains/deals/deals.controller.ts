@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
   Post,
+  Put,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -35,12 +37,11 @@ export class DealsController {
 
   @Get('/deals/:dealId')
   async getDeal(@Param('dealId', ParseIntPipe) dealId: number) {
-    await this.dealsService.updateView(dealId);
-    const deal = await this.dealsService.getDeal(dealId);
+    const deal = await this.dealsService.updateView(dealId);
     return deal;
   }
 
-  @Post('deals')
+  @Post('deals/create')
   @UserOnly()
   @UseInterceptors(FileFieldsInterceptor([{ name: 'image', maxCount: 1 }]))
   async createDeal(
@@ -48,10 +49,50 @@ export class DealsController {
     @Body() dto: WithOutImageDealDto,
     @UploadedFiles() image: Express.Multer.File,
   ) {
-    const data = JSON.parse(dto['post']);
+    const data = JSON.parse(dto['deal']);
     const parsedImage = image['image'][0];
-    console.log(data);
     const deal = await this.dealsService.createDeal(user, data, parsedImage);
+    return deal;
+  }
+
+  @Put('deals/:dealId/edit')
+  @UserOnly()
+  async editDeal(
+    @DUser() user: User,
+    @Body() dto: WithOutImageDealDto,
+    @Param('dealId', ParseIntPipe) dealId: number,
+  ) {
+    const deal = await this.dealsService.editDeal(dealId, user, dto);
+    return deal;
+  }
+
+  @Delete('deals/:dealId')
+  @UserOnly()
+  async deleteDeal(
+    @DUser() user: User,
+    @Param('dealId', ParseIntPipe) dealId: number,
+  ) {
+    const deal = await this.dealsService.deleteDeal(user, dealId);
+    return deal;
+  }
+
+  @Post('deals/:dealId/like')
+  @UserOnly()
+  async addLike(
+    @DUser() user: User,
+    @Param('dealId', ParseIntPipe) dealId: number,
+  ) {
+    const deal = await this.dealsService.addLike(user, dealId);
+    return deal;
+  }
+
+  @Delete('deals/:dealId/like')
+  @UserOnly()
+  async deleteLike(
+    @DUser() user: User,
+    @Param('dealId', ParseIntPipe) dealId: number,
+  ) {
+    const deal = await this.dealsService.deleteLike(user, dealId);
     return deal;
   }
 }

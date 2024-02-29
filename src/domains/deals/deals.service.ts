@@ -23,7 +23,7 @@ export class DealsService {
 
     await fs.writeFile(path, image.buffer);
 
-    const post = await this.prismaService.post.create({
+    const deal = await this.prismaService.deal.create({
       data: {
         title,
         content,
@@ -35,44 +35,91 @@ export class DealsService {
       },
     });
 
-    return post;
+    return deal;
   }
 
   async getDeals() {
-    const deals = await this.prismaService.post.findMany({
+    const deals = await this.prismaService.deal.findMany({
       orderBy: { createdAt: 'desc' },
     });
     return deals;
   }
 
   async getDeal(id: number) {
-    const deal = await this.prismaService.post.findUnique({
+    const deal = await this.prismaService.deal.findUnique({
       where: {
         id,
       },
+      include: { user: true },
     });
 
     return deal;
   }
 
   async updateView(id: number) {
-    const deal = await this.prismaService.post.update({
+    const deal = await this.prismaService.deal.update({
       where: {
         id,
       },
       data: {
         view: { increment: 1 },
       },
+      include: { user: true },
     });
 
     return deal;
   }
 
   async getMyDeals(userId: string) {
-    const deals = await this.prismaService.post.findMany({
+    const deals = await this.prismaService.deal.findMany({
       where: { userId },
+      orderBy: { createdAt: 'desc' },
     });
 
     return deals;
+  }
+
+  async deleteDeal(user: User, dealId: number) {
+    const checkedDeal = await this.prismaService.deal.delete({
+      where: { userId: user.id, id: dealId },
+    });
+    return checkedDeal;
+  }
+
+  async editDeal(dealId: number, user: User, data: WithOutImageDealDto) {
+    const userId = user.id;
+
+    const { title, content, location, price } = data;
+
+    const deal = await this.prismaService.deal.update({
+      where: { id: dealId, userId },
+      data: {
+        title,
+        content,
+        location,
+        price,
+      },
+    });
+
+    return deal;
+  }
+
+  async addLike(user: User, dealId: number) {
+    const userId = user.id;
+
+    const deal = await this.prismaService.likedDeal.create({
+      data: { userId, dealId },
+    });
+
+    return deal;
+  }
+
+  async deleteLike(user: User, dealId: number) {
+    const userId = user.id;
+
+    const deal = await this.prismaService.likedDeal.delete({
+      where: { userId_dealId: { userId, dealId } },
+    });
+    return deal;
   }
 }
